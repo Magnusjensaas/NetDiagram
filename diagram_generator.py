@@ -34,8 +34,11 @@ class DiagramGenerator:
             hostname = device_data.get('hostname', device_ip)
             device_type = self._determine_device_type(device_data)
             
+            # Create a label with both hostname and IP
+            label = f"{hostname}\n{device_ip}"
+            
             self.graph.add_node(device_ip, 
-                               label=hostname, 
+                               label=label, 
                                device_type=device_type,
                                data=device_data)
             
@@ -51,15 +54,16 @@ class DiagramGenerator:
                         # Create a unique connection identifier
                         connection_id = tuple(sorted([source_ip, neighbor_ip]))
                         
+                        # Only add if we haven't added this connection yet
                         if connection_id not in added_connections:
-                            # Get interface information
-                            local_intf = neighbor.get('local_interface', '')
-                            remote_intf = neighbor.get('remote_interface', '')
+                            # Get port information
+                            local_port = neighbor.get('local_port', '')
+                            remote_port = neighbor.get('remote_port', '')
                             
-                            self.graph.add_edge(source_ip, neighbor_ip, 
-                                              local_interface=local_intf,
-                                              remote_interface=remote_intf)
+                            # Create edge label with port information
+                            edge_label = f"{local_port} → {remote_port}" if local_port and remote_port else ""
                             
+                            self.graph.add_edge(source_ip, neighbor_ip, label=edge_label)
                             added_connections.add(connection_id)
         
         self.logger.info(f"Built graph with {self.graph.number_of_nodes()} nodes and {self.graph.number_of_edges()} edges")
@@ -131,18 +135,11 @@ class DiagramGenerator:
         
         # Draw labels
         labels = nx.get_node_attributes(filtered_graph, 'label')
-        nx.draw_networkx_labels(filtered_graph, pos, labels=labels, font_size=8)
+        nx.draw_networkx_labels(filtered_graph, pos, labels=labels, font_size=9)
         
-        # Draw edge labels (interfaces)
-        edge_labels = {}
-        for u, v, data in filtered_graph.edges(data=True):
-            local_intf = data.get('local_interface', '')
-            remote_intf = data.get('remote_interface', '')
-            
-            if local_intf and remote_intf:
-                edge_labels[(u, v)] = f"{local_intf} - {remote_intf}"
-        
-        nx.draw_networkx_edge_labels(filtered_graph, pos, edge_labels=edge_labels, font_size=6)
+        # Draw edge labels with port information
+        edge_labels = nx.get_edge_attributes(filtered_graph, 'label')
+        nx.draw_networkx_edge_labels(filtered_graph, pos, edge_labels=edge_labels, font_size=8)
         
         # Add legend
         legend_elements = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color, markersize=10, label=device_type)
