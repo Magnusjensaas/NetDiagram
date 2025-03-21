@@ -1,0 +1,21 @@
+# Sample devices configuration file
+# Replace with your actual device information
+
+- ip: 192.168.1.1
+  device_type: cisco_ios
+  username: admin
+  password: cisco123
+  secret: cisco123  # enable secret if needed
+
+- ip: 192.168.1.2
+  device_type: cisco_ios
+  username: admin
+  password: cisco123
+  secret: cisco123
+
+# Example for SSH key authentication
+#- ip: 192.168.1.3
+#  device_type: cisco_ios
+#  username: admin
+#  use_keys: true
+#  key_file: /path/to/private_key

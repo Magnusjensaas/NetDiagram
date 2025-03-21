@@ -1,0 +1,9 @@
+netmiko>=4.1.0
+pyyaml>=6.0
+matplotlib>=3.5.0
+networkx>=2.6.3
+textfsm>=1.1.2
+pyvis>=0.2.1
+flask>=2.0.1
+ntc-templates>=3.0.0
+ipaddress>=1.0.23
